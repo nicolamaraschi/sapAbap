@@ -1,27 +1,93 @@
-class ltcl_calculator_test DEFINITION FINAL FOR TESTING
-    RISK LEVEL HARMLESS
-    DURATION SHORT.
+REPORT z_simple_calculator
 
-    PRIVATION SECTION.
-        DATA:
-        mo_calculator TYPE REF TO zcl_calculator.
+"parametri calcolatrice input
+PARAMETERS:
+    p_num1 TYPE p DECIMAL 2 OBLIGATORY,
+    P_NUM2 TYPE p LENGHT 1 OBLIGATORY,
+    p_op TYPE c LENGHT 1 OBLIGATORY,
 
-        METHODS:
-                setup,
-                test_addition FOR TESTING
-                test_subtraction FOR TESTING
-                test_multiplication FOR TESTING
-                test_division FOR TESTING
-                test_division_by_zero FOR TESTING
-ENDCLASS.
+DATA:
+    lv_result TYPE p DECIMALS 2,
+    lv_output TYPE string.
 
-CLASS ltcl_calculator_test IMPLEMENTATION.
-    METHOD setup.
-        " crea instanza di test
-        mo_calculator = NEW zcl_calculator().
-    ENDMETHOD.
+"implementazione classe dati della calcolatrice
 
-    METHOD test_addition.
-        DATA(lv_a)
+CLASS lcl_calculator DEFINITION
+    PUBLIC SECTION.
+        METHOD:
+            calculate
+                IMPORTING
+                    lv_num1 TYPE p
+                    lv_operator TYPE c
+                    lv_num2 TYPE p
+                EXPORTING
+                    ev_result TYOE p
+                    ev_error_msg TYPE string
+                RETURNING
+                    VALUE(rv_sucess) TYPE abap_bool
+        ENDMETHOD.
+ENDCLASS.    
 
-    ENDMETHOD.
+"implementazione logica calcolatrice
+
+CLASS lcl_calculator IMPLEMENTATION
+        METHOD  calculate
+        rv_seccess = abap_true.
+
+            " Esecuzione dell'operazione matematica
+        CASE iv_operator.
+            WHEN '+'.  " Addizione
+                ev_result = iv_num1 + iv_num2.
+                
+            WHEN '-'.  " Sottrazione
+                ev_result = iv_num1 - iv_num2.
+                
+            WHEN '*'.  " Moltiplicazione
+                ev_result = iv_num1 * iv_num2.
+                
+            WHEN '/'.  " Divisione
+                " Controllo divisione per zero
+                IF iv_num2 = 0.
+                rv_success = abap_false.
+                ev_error_msg = 'Errore: Divisione per zero non consentita!'.
+                ELSE.
+                ev_result = iv_num1 / iv_num2.
+                ENDIF.
+                
+            WHEN '^'.  " Potenza
+                " Implementazione semplice per numeri interi positivi
+                IF iv_num2 < 0.
+                    rv_success = abap_false.
+                    ev_error_msg = 'Errore: Esponente negativo non supportato!'.
+                ELSE.
+                    ev_result = 1.
+                    DO iv_num2 TIMES.
+                        ev_result = ev_result * iv_num1.
+                    ENDDO.
+                 ENDIF.
+                    WHEN OTHERS.
+                    rv_success = abap_false.
+                    ev_error_msg = 'Operazione non valida! Utilizzare +, -, *, /, ^'.
+                ENDCASE.
+            ENDMETHOD.
+ENDCLASS
+
+
+* Definizione della schermata di output
+
+CLASS lcl_calculator DEFINITION.
+    PUBLIC SECTION.
+        METHOD 
+            display_header,
+            display_result
+                IMPORTING
+                    iv_num1 TYPE p
+                    iv_num2 TYPE P
+                    iv_op TYPE c
+                    iv_result TYPE p OPTIONAL  
+                    iv_messagge
+                    
+
+        
+           
+        ENDMETHOD
